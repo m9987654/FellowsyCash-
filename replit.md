@@ -4,6 +4,31 @@
 
 This is a comprehensive financial platform application for Egyptian users called "Flous Cash". It's a full-stack web application built with React, TypeScript, Express, and PostgreSQL that provides financial services including funding requests, savings goals, and investment offers with digital contract management.
 
+## Recent Changes (January 2025)
+
+✅ **Payment Logic Implementation:**
+- Funding service: Fixed 50 EGP service fee to Vodafone Cash 01026751430
+- Saving & Investment services: Free service, users transfer service amount to 01026751430
+- All forms now include payment confirmation checkbox validation
+- Egyptian Arabic payment notices with motivational phrases
+
+✅ **Investment Plans Updated:**
+- All plans now offer fixed 40% returns over exactly 10 days
+- Updated UI with countdown timers and motivational Arabic text
+- Investment descriptions: "استثمر X جنيه، تاخد Y بعد 10 أيام 💰"
+
+✅ **Enhanced PDF Contract Generation:**
+- Professional contracts with Arabic support
+- Includes full user details, service type, amounts, and terms
+- Digital stamp and signature sections
+- Branded header with Flous Cash logo
+- Contract numbering system (FC-000001 format)
+
+✅ **Egyptian Arabic UI:**
+- Complete interface in Egyptian dialect
+- Motivational phrases: "حوّلت خلاص؟ كمّل التقديم"
+- Persuasive tone throughout all user interactions
+
 ## User Preferences
 
 Preferred communication style: Simple, everyday language.

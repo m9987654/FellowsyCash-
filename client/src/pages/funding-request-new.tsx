@@ -182,6 +182,7 @@ export default function FundingRequestNew() {
           <PaymentNotice
             isChecked={paymentConfirmed}
             onCheckedChange={setPaymentConfirmed}
+            serviceType="funding"
           />
 
           {/* Main Form */}

@@ -189,6 +189,8 @@ export default function InvestmentOffersNew() {
               <PaymentNotice
                 isChecked={paymentConfirmed}
                 onCheckedChange={setPaymentConfirmed}
+                serviceType="investment"
+                amount={form.watch("investmentAmount")}
               />
 
               {/* Investment Form */}
@@ -239,6 +241,9 @@ export default function InvestmentOffersNew() {
                               خلال {selectedPlan.duration}
                             </span>
                           </div>
+                          <p className="text-sm text-gray-600 dark:text-gray-400">
+                            الربح يصلك بعد 10 أيام بالتمام
+                          </p>
                         </div>
                       </div>
 

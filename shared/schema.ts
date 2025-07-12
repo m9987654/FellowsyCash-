@@ -77,7 +77,7 @@ export const investmentOffers = pgTable("investment_offers", {
   planName: varchar("plan_name").notNull(),
   investmentAmount: decimal("investment_amount", { precision: 10, scale: 2 }).notNull(),
   expectedReturn: decimal("expected_return", { precision: 5, scale: 2 }).notNull(),
-  duration: integer("duration").notNull(), // in months
+  duration: integer("duration").notNull().default(10), // in days
   status: varchar("status", { enum: ["pending", "active", "completed", "cancelled"] }).default("pending"),
   contractUrl: varchar("contract_url"),
   createdAt: timestamp("created_at").defaultNow(),

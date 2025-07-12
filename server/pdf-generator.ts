@@ -4,270 +4,220 @@ import type { Contract } from '@shared/schema';
 export async function generatePDF(contract: Contract, signatureData?: string): Promise<Buffer> {
   const pdfDoc = await PDFDocument.create();
   const page = pdfDoc.addPage([595.28, 841.89]); // A4 size
-  
+
   const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
   const boldFont = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
-  
+
   const { width, height } = page.getSize();
   const fontSize = 12;
   const titleFontSize = 20;
-  const margin = 50;
-  
-  // Header
-  page.drawText('Flous Cash', {
-    x: width / 2 - 50,
-    y: height - margin,
+  const subtitleFontSize = 14;
+
+  // Header background
+  page.drawRectangle({
+    x: 0,
+    y: height - 120,
+    width: width,
+    height: 120,
+    color: rgb(0.02, 0.4, 0.8), // Blue header
+  });
+
+  // Platform logo area
+  page.drawText("فلوس كاش", {
+    x: width - 120,
+    y: height - 50,
+    size: 24,
+    font: boldFont,
+    color: rgb(1, 1, 1),
+  });
+
+  page.drawText("FLOUS CASH", {
+    x: width - 120,
+    y: height - 75,
+    size: 12,
+    font: font,
+    color: rgb(0.9, 0.9, 0.9),
+  });
+
+  // Title
+  page.drawText("عقد خدمة مالية رسمي", {
+    x: width - 200,
+    y: height - 100,
     size: titleFontSize,
     font: boldFont,
-    color: rgb(0.13, 0.55, 0.95), // Primary blue
+    color: rgb(1, 1, 1),
   });
-  
-  page.drawText('عقد الخدمات المالية', {
-    x: width / 2 - 70,
-    y: height - margin - 30,
-    size: 16,
-    font: boldFont,
-    color: rgb(0.2, 0.2, 0.2),
-  });
-  
+
   // Contract details
-  let yPosition = height - margin - 80;
-  const lineHeight = 25;
-  
   const contractData = contract.contractData as any;
   
-  // Contract ID
-  page.drawText(`رقم العقد: ${contract.id}`, {
-    x: margin,
-    y: yPosition,
-    size: fontSize,
-    font: boldFont,
-  });
-  yPosition -= lineHeight;
-  
-  // Date
-  page.drawText(`التاريخ: ${new Date(contract.createdAt!).toLocaleDateString('ar-EG')}`, {
-    x: margin,
-    y: yPosition,
-    size: fontSize,
-    font: font,
-  });
-  yPosition -= lineHeight * 2;
-  
-  // User information
-  page.drawText('بيانات العميل:', {
-    x: margin,
-    y: yPosition,
-    size: fontSize,
-    font: boldFont,
-  });
-  yPosition -= lineHeight;
-  
-  if (contractData.userName) {
-    page.drawText(`الاسم: ${contractData.userName}`, {
-      x: margin + 20,
-      y: yPosition,
-      size: fontSize,
-      font: font,
-    });
-    yPosition -= lineHeight;
-  }
-  
-  if (contractData.userEmail) {
-    page.drawText(`البريد الإلكتروني: ${contractData.userEmail}`, {
-      x: margin + 20,
-      y: yPosition,
-      size: fontSize,
-      font: font,
-    });
-    yPosition -= lineHeight;
-  }
-  
-  yPosition -= lineHeight;
-  
-  // Service details
-  page.drawText('تفاصيل الخدمة:', {
-    x: margin,
-    y: yPosition,
-    size: fontSize,
-    font: boldFont,
-  });
-  yPosition -= lineHeight;
-  
-  if (contract.type === 'funding') {
-    page.drawText(`نوع الخدمة: طلب تمويل`, {
-      x: margin + 20,
-      y: yPosition,
-      size: fontSize,
-      font: font,
-    });
-    yPosition -= lineHeight;
-    
-    page.drawText(`المبلغ: ${contractData.amount} جنيه`, {
-      x: margin + 20,
-      y: yPosition,
-      size: fontSize,
-      font: font,
-    });
-    yPosition -= lineHeight;
-    
-    page.drawText(`الغرض: ${contractData.purpose}`, {
-      x: margin + 20,
-      y: yPosition,
-      size: fontSize,
-      font: font,
-    });
-    yPosition -= lineHeight;
-    
-    page.drawText(`الراتب الشهري: ${contractData.monthlyIncome} جنيه`, {
-      x: margin + 20,
-      y: yPosition,
-      size: fontSize,
-      font: font,
-    });
-    yPosition -= lineHeight;
-  } else if (contract.type === 'investment') {
-    page.drawText(`نوع الخدمة: خطة استثمارية`, {
-      x: margin + 20,
-      y: yPosition,
-      size: fontSize,
-      font: font,
-    });
-    yPosition -= lineHeight;
-    
-    page.drawText(`اسم الخطة: ${contractData.planName}`, {
-      x: margin + 20,
-      y: yPosition,
-      size: fontSize,
-      font: font,
-    });
-    yPosition -= lineHeight;
-    
-    page.drawText(`مبلغ الاستثمار: ${contractData.investmentAmount} جنيه`, {
-      x: margin + 20,
-      y: yPosition,
-      size: fontSize,
-      font: font,
-    });
-    yPosition -= lineHeight;
-    
-    page.drawText(`العائد المتوقع: ${contractData.expectedReturn}%`, {
-      x: margin + 20,
-      y: yPosition,
-      size: fontSize,
-      font: font,
-    });
-    yPosition -= lineHeight;
-    
-    page.drawText(`مدة الاستثمار: ${contractData.duration} شهر`, {
-      x: margin + 20,
-      y: yPosition,
-      size: fontSize,
-      font: font,
-    });
-    yPosition -= lineHeight;
-  }
-  
-  yPosition -= lineHeight * 2;
-  
-  // Terms and conditions
-  page.drawText('الشروط والأحكام:', {
-    x: margin,
-    y: yPosition,
-    size: fontSize,
-    font: boldFont,
-  });
-  yPosition -= lineHeight;
-  
-  const terms = [
-    '1. يلتزم العميل بتقديم المعلومات الصحيحة والكاملة',
-    '2. تخضع جميع المعاملات لقوانين جمهورية مصر العربية',
-    '3. يحق للشركة مراجعة الطلب والموافقة عليه أو رفضه',
-    '4. العميل مسؤول عن سداد جميع المبالغ المستحقة في المواعيد المحددة',
-    '5. هذا العقد ملزم لجميع الأطراف بمجرد التوقيع عليه',
-  ];
-  
-  terms.forEach(term => {
-    page.drawText(term, {
-      x: margin + 20,
-      y: yPosition,
-      size: fontSize - 1,
-      font: font,
-    });
-    yPosition -= lineHeight;
-  });
-  
-  yPosition -= lineHeight * 2;
-  
-  // Signature section
-  page.drawText('التوقيع:', {
-    x: margin,
-    y: yPosition,
-    size: fontSize,
-    font: boldFont,
-  });
-  yPosition -= lineHeight;
-  
-  if (signatureData) {
-    page.drawText(`توقيع العميل: ${signatureData}`, {
-      x: margin + 20,
-      y: yPosition,
-      size: fontSize,
-      font: font,
-    });
-  } else {
-    page.drawText('توقيع العميل: ________________', {
-      x: margin + 20,
-      y: yPosition,
-      size: fontSize,
-      font: font,
-    });
-  }
-  yPosition -= lineHeight * 2;
-  
-  // Footer
-  page.drawText('تم إنشاء هذا العقد بواسطة منصة Flous Cash', {
-    x: margin,
-    y: margin,
-    size: fontSize - 2,
-    font: font,
-    color: rgb(0.5, 0.5, 0.5),
-  });
-  
-  page.drawText('مرخص من البنك المركزي المصري', {
-    x: margin,
-    y: margin - 15,
-    size: fontSize - 2,
-    font: font,
-    color: rgb(0.5, 0.5, 0.5),
-  });
-  
-  // Official stamp placeholder
+  let yPos = height - 160;
+  const lineHeight = 25;
+
+  // Contract info box
   page.drawRectangle({
-    x: width - margin - 100,
-    y: margin + 20,
+    x: 30,
+    y: yPos - 20,
+    width: width - 60,
+    height: 200,
+    color: rgb(0.97, 0.97, 0.97),
+    borderColor: rgb(0.8, 0.8, 0.8),
+    borderWidth: 1,
+  });
+
+  page.drawText("بيانات العقد:", {
+    x: width - 120,
+    y: yPos,
+    size: subtitleFontSize,
+    font: boldFont,
+    color: rgb(0, 0, 0),
+  });
+
+  yPos -= 30;
+
+  const getServiceType = (type: string) => {
+    switch (type) {
+      case 'funding': return 'تمويل';
+      case 'investment': return 'استثمار';
+      case 'saving': return 'ادخار';
+      default: return type;
+    }
+  };
+
+  const details = [
+    { label: "رقم العقد", value: `FC-${contract.id.toString().padStart(6, '0')}` },
+    { label: "التاريخ", value: new Date(contract.createdAt!).toLocaleDateString('ar-EG') },
+    { label: "نوع الخدمة", value: getServiceType(contract.type) },
+    { label: "الاسم الكامل", value: contractData.userName || 'غير محدد' },
+    { label: "البريد الإلكتروني", value: contractData.userEmail || 'غير محدد' },
+    { label: "المبلغ", value: `${contractData.amount || contractData.investmentAmount || 'غير محدد'} جنيه مصري` },
+  ];
+
+  if (contract.type === 'funding') {
+    details.push({ label: "الغرض", value: contractData.purpose || 'غير محدد' });
+    details.push({ label: "الدخل الشهري", value: `${contractData.monthlyIncome || 'غير محدد'} جنيه` });
+  }
+
+  if (contract.type === 'investment') {
+    details.push({ label: "خطة الاستثمار", value: contractData.planName || 'غير محدد' });
+    details.push({ label: "العائد المتوقع", value: `${contractData.expectedReturn || '40'}%` });
+    details.push({ label: "المدة", value: `${contractData.duration || 10} أيام` });
+  }
+
+  details.forEach((detail) => {
+    page.drawText(`${detail.label}: ${detail.value}`, {
+      x: width - 450,
+      y: yPos,
+      size: fontSize,
+      font: font,
+      color: rgb(0, 0, 0),
+    });
+    yPos -= lineHeight;
+  });
+
+  // Terms section
+  yPos -= 40;
+  page.drawText("الشروط والأحكام:", {
+    x: width - 120,
+    y: yPos,
+    size: subtitleFontSize,
+    font: boldFont,
+    color: rgb(0, 0, 0),
+  });
+
+  yPos -= 30;
+  const terms = [
+    "• يلتزم الطرف الثاني بسداد المبلغ في الموعد المحدد",
+    "• جميع المعاملات محمية بموجب القانون المصري",
+    "• العقد ساري المفعول من تاريخ التوقيع",
+    "• للاستفسارات يرجى التواصل مع خدمة العملاء"
+  ];
+
+  terms.forEach((term) => {
+    page.drawText(term, {
+      x: width - 500,
+      y: yPos,
+      size: 10,
+      font: font,
+      color: rgb(0.2, 0.2, 0.2),
+    });
+    yPos -= 20;
+  });
+
+  // Signature section
+  yPos -= 40;
+  page.drawRectangle({
+    x: 30,
+    y: yPos - 80,
+    width: width - 60,
+    height: 100,
+    color: rgb(0.98, 0.98, 0.98),
+    borderColor: rgb(0.8, 0.8, 0.8),
+    borderWidth: 1,
+  });
+
+  page.drawText("التوقيع والختم:", {
+    x: width - 120,
+    y: yPos - 20,
+    size: subtitleFontSize,
+    font: boldFont,
+    color: rgb(0, 0, 0),
+  });
+
+  if (signatureData) {
+    page.drawText(`التوقيع: ${signatureData}`, {
+      x: width - 200,
+      y: yPos - 50,
+      size: fontSize,
+      font: font,
+      color: rgb(0, 0, 0),
+    });
+  }
+
+  // Digital stamp
+  page.drawText("ختم رسمي", {
+    x: 100,
+    y: yPos - 50,
+    size: 12,
+    font: boldFont,
+    color: rgb(0.8, 0, 0),
+  });
+
+  page.drawRectangle({
+    x: 80,
+    y: yPos - 70,
     width: 80,
-    height: 60,
-    borderColor: rgb(0.13, 0.55, 0.95),
+    height: 40,
+    color: rgb(1, 1, 1),
+    borderColor: rgb(0.8, 0, 0),
     borderWidth: 2,
   });
-  
-  page.drawText('ختم', {
-    x: width - margin - 80,
-    y: margin + 45,
-    size: fontSize,
-    font: boldFont,
-    color: rgb(0.13, 0.55, 0.95),
+
+  // Footer
+  page.drawRectangle({
+    x: 0,
+    y: 0,
+    width: width,
+    height: 60,
+    color: rgb(0.1, 0.1, 0.1),
   });
-  
-  page.drawText('Flous Cash', {
-    x: width - margin - 90,
-    y: margin + 30,
-    size: fontSize - 2,
+
+  page.drawText("منصة فلوس كاش - خدمات مالية موثوقة ومرخصة", {
+    x: width - 250,
+    y: 35,
+    size: 10,
     font: font,
-    color: rgb(0.13, 0.55, 0.95),
+    color: rgb(1, 1, 1),
   });
-  
+
+  page.drawText("www.flouscash.com | support@flouscash.com", {
+    x: width - 200,
+    y: 20,
+    size: 8,
+    font: font,
+    color: rgb(0.8, 0.8, 0.8),
+  });
+
   const pdfBytes = await pdfDoc.save();
   return Buffer.from(pdfBytes);
 }

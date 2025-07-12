@@ -9,6 +9,7 @@ import { apiRequest } from "@/lib/queryClient";
 import { insertSavingsGoalSchema } from "@shared/schema";
 import { z } from "zod";
 import Navbar from "@/components/navbar";
+import PaymentNotice from "@/components/payment-notice";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -30,6 +31,7 @@ export default function SavingsGoals() {
   const { user, isAuthenticated, isLoading } = useAuth();
   const queryClient = useQueryClient();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [paymentConfirmed, setPaymentConfirmed] = useState(false);
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -173,7 +175,17 @@ export default function SavingsGoals() {
                 <DialogTitle>إنشاء هدف ادخار جديد</DialogTitle>
               </DialogHeader>
               <Form {...form}>
-                <form onSubmit={form.handleSubmit((data) => mutation.mutate(data))} className="space-y-4">
+                <form onSubmit={form.handleSubmit((data) => {
+                  if (!paymentConfirmed) {
+                    toast({
+                      title: "يرجى تأكيد التحويل",
+                      description: "يجب تأكيد تحويل المبلغ قبل إكمال الطلب",
+                      variant: "destructive",
+                    });
+                    return;
+                  }
+                  mutation.mutate(data);
+                })} className="space-y-4">
                   <FormField
                     control={form.control}
                     name="goalName"
@@ -244,6 +256,14 @@ export default function SavingsGoals() {
                         <FormMessage />
                       </FormItem>
                     )}
+                  />
+
+                  {/* Payment Notice */}
+                  <PaymentNotice
+                    isChecked={paymentConfirmed}
+                    onCheckedChange={setPaymentConfirmed}
+                    serviceType="saving"
+                    amount={form.watch("monthlyContribution")}
                   />
 
                   <div className="flex gap-2">
