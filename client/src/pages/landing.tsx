@@ -1,5 +1,5 @@
 import Navbar from "@/components/navbar";
-import HeroSection from "@/components/hero-section";
+import HeroSectionArabic from "@/components/hero-section-arabic";
 import ServicesSection from "@/components/services-section";
 import DashboardPreview from "@/components/dashboard-preview";
 import DigitalContracts from "@/components/digital-contracts";
@@ -13,7 +13,7 @@ export default function Landing() {
   return (
     <div className="min-h-screen">
       <Navbar />
-      <HeroSection />
+      <HeroSectionArabic />
       <ServicesSection />
       <DashboardPreview />
       <DigitalContracts />

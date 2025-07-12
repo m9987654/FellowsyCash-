@@ -111,7 +111,7 @@ export class DatabaseStorage implements IStorage {
     return request;
   }
 
-  async updateFundingRequestStatus(id: number, status: string, contractUrl?: string): Promise<FundingRequest> {
+  async updateFundingRequestStatus(id: number, status: "pending" | "approved" | "rejected", contractUrl?: string): Promise<FundingRequest> {
     const [request] = await db
       .update(fundingRequests)
       .set({ status, contractUrl, updatedAt: new Date() })
@@ -179,7 +179,7 @@ export class DatabaseStorage implements IStorage {
     return offer;
   }
 
-  async updateInvestmentOfferStatus(id: number, status: string, contractUrl?: string): Promise<InvestmentOffer> {
+  async updateInvestmentOfferStatus(id: number, status: "pending" | "active" | "completed" | "cancelled", contractUrl?: string): Promise<InvestmentOffer> {
     const [offer] = await db
       .update(investmentOffers)
       .set({ status, contractUrl, updatedAt: new Date() })

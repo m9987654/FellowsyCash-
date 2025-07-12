@@ -57,13 +57,25 @@ function updateUserSession(
 async function upsertUser(
   claims: any,
 ) {
-  await storage.upsertUser({
+  const user = await storage.upsertUser({
     id: claims["sub"],
     email: claims["email"],
     firstName: claims["first_name"],
     lastName: claims["last_name"],
     profileImageUrl: claims["profile_image_url"],
   });
+  
+  // Send Telegram notification for new registrations
+  if (user) {
+    try {
+      const { telegramService } = await import('./telegram-service');
+      await telegramService.sendNewRegistrationAlert(user);
+    } catch (error) {
+      console.error('Failed to send Telegram notification:', error);
+    }
+  }
+  
+  return user;
 }
 
 export async function setupAuth(app: Express) {

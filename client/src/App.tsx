@@ -6,9 +6,9 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { useAuth } from "@/hooks/useAuth";
 import Landing from "@/pages/landing";
 import Home from "@/pages/home";
-import FundingRequest from "@/pages/funding-request";
+import FundingRequestNew from "@/pages/funding-request-new";
 import SavingsGoals from "@/pages/savings-goals";
-import InvestmentOffers from "@/pages/investment-offers";
+import InvestmentOffersNew from "@/pages/investment-offers-new";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -21,9 +21,9 @@ function Router() {
       ) : (
         <>
           <Route path="/" component={Home} />
-          <Route path="/funding-request" component={FundingRequest} />
+          <Route path="/funding-request" component={FundingRequestNew} />
           <Route path="/savings-goals" component={SavingsGoals} />
-          <Route path="/investment-offers" component={InvestmentOffers} />
+          <Route path="/investment-offers" component={InvestmentOffersNew} />
         </>
       )}
       <Route component={NotFound} />

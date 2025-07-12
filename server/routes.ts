@@ -10,6 +10,7 @@ import {
 } from "@shared/schema";
 import { generatePDF } from "./pdf-generator";
 import { sendEmail } from "./email-service";
+import { telegramService } from "./telegram-service";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Auth middleware
@@ -50,6 +51,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       });
       
+      // Send Telegram notification
+      const user = await storage.getUser(userId);
+      if (user) {
+        await telegramService.sendNewServiceAlert({
+          fullName: user.fullName || `${user.firstName} ${user.lastName}`,
+          email: user.email || '',
+          phone: user.phone || '',
+          nationalId: user.nationalId || '',
+          job: user.job || '',
+          address: user.address || '',
+          serviceType: 'طلب تمويل',
+          amount: data.amount,
+          timestamp: new Date().toLocaleString('ar-EG', { timeZone: 'Africa/Cairo' })
+        });
+      }
+      
       res.json({ fundingRequest, contract });
     } catch (error) {
       console.error("Error creating funding request:", error);
@@ -75,6 +92,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const data = insertSavingsGoalSchema.parse({ ...req.body, userId });
       
       const savingsGoal = await storage.createSavingsGoal(data);
+      
+      // Send Telegram notification
+      const user = await storage.getUser(userId);
+      if (user) {
+        await telegramService.sendNewServiceAlert({
+          fullName: user.fullName || `${user.firstName} ${user.lastName}`,
+          email: user.email || '',
+          phone: user.phone || '',
+          nationalId: user.nationalId || '',
+          job: user.job || '',
+          address: user.address || '',
+          serviceType: `هدف ادخار - ${data.goalName}`,
+          amount: data.targetAmount,
+          timestamp: new Date().toLocaleString('ar-EG', { timeZone: 'Africa/Cairo' })
+        });
+      }
+      
       res.json(savingsGoal);
     } catch (error) {
       console.error("Error creating savings goal:", error);
@@ -116,6 +150,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
           date: new Date().toISOString(),
         }
       });
+      
+      // Send Telegram notification
+      const user = await storage.getUser(userId);
+      if (user) {
+        await telegramService.sendNewServiceAlert({
+          fullName: user.fullName || `${user.firstName} ${user.lastName}`,
+          email: user.email || '',
+          phone: user.phone || '',
+          nationalId: user.nationalId || '',
+          job: user.job || '',
+          address: user.address || '',
+          serviceType: `استثمار - ${data.planName}`,
+          amount: data.investmentAmount,
+          timestamp: new Date().toLocaleString('ar-EG', { timeZone: 'Africa/Cairo' })
+        });
+      }
       
       res.json({ investmentOffer, contract });
     } catch (error) {
@@ -232,7 +282,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "Contract not found" });
       }
       
-      const pdfBuffer = await generatePDF(contract, contract.signatureData);
+      const pdfBuffer = await generatePDF(contract, contract.signatureData || undefined);
       
       res.set({
         'Content-Type': 'application/pdf',
